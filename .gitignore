@@ -3,3 +3,5 @@
 .qodo/
 .venv/
 venv/
+/pickle_files/
+__pycache__/
