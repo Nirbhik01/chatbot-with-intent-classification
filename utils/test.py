@@ -7,6 +7,8 @@ from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 
+import ollama
+
 def load_models():
     try:
         from sentence_transformers import SentenceTransformer
@@ -86,6 +88,38 @@ def convert_to_word2vec_vector(processed_text=None,word2vec_model=None):
 
 def convert_to_sbert_vector(text,model):
     return model.encode([text])[0]
+
+def ollama_response(string,intent):
+    response = ollama.chat(
+    model='gemma3:4b',
+    messages=[
+                {'role': 'user', 'content': f'''You are an intelligent IDE assistant.
+
+                    You will receive:
+                    - A user instruction (natural language)
+                    - An intent label provided by the system
+
+                    Rules:
+                    - The intent is for internal reasoning only.
+                    - NEVER mention, explain, or reveal the intent in your response.
+                    - Respond only to the user instruction.
+                    - Assume the instruction is valid and permitted.
+                    - Reply in a concise, professional, IDE-style tone.
+                    - Acknowledge the instruction and confirm the action clearly.
+                    - Do not ask follow-up questions unless absolutely necessary.
+                    - Do not include explanations unless the instruction explicitly asks for them.
+
+                    Your goal is to confirm and follow the instruction as an IDE assistant would.
+                    Instruction:
+                    {string}
+
+                    Intent (for internal analysis only):
+                    {intent}
+                '''}
+            ]
+    )
+    return response.message.content
+ 
     
 def main():
 
@@ -99,7 +133,7 @@ def main():
     word2vec_model = models[5]    
     
     BASE_DIR = Path(__file__).resolve().parent.parent
-    result_encoding_file = BASE_DIR / "data" / "result_encodings.json"
+    result_encoding_file = BASE_DIR / "utils" / "result_encodings.json"
     intent = load_intents(result_encoding_file)
     
     input_text = input("Enter your text: \n")
@@ -122,6 +156,8 @@ def main():
     print(f'\nSBERT Prediction: {intent[str(sbert_pred)]}\n')
     
     # since sbert predictions are better, we use sbert predictions
+    predicted_intent = intent[str(balanced_sbert_pred)]
+    print(ollama_response(input_text,predicted_intent))
 
 if __name__ == "__main__":
     main()
