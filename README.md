@@ -95,8 +95,3 @@ Help / Next steps
 
 License
 - Add a license file if you plan to publish (e.g., MIT). If unsure, add `LICENSE` later.
-
-
-# chatbot-with-intent-classification
-
-dataset : [dataset](https://www.kaggle.com/datasets/abdullahusmani86/intent-classification-for-ide-functionalities?resource=download)
